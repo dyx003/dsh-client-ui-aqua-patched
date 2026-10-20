@@ -31,6 +31,15 @@
 }
 
 [data-dsh-aqua] [data-dsh-frame] {
+  position: relative;
+  z-index: 1;
+  background: transparent;
+}
+
+/* DSH 0.2 desktop adds a base fill to centerCol for Windows titlebar and
+   macOS shells. Outrank those platform rules without changing base tokens
+   used by dialogs, menus, previews and other independent surfaces. */
+[data-dsh-aqua] [data-dsh-frame] > [data-dsh-center] {
   background: transparent;
 }
 
@@ -46,7 +55,7 @@
    z-index 8 (not 6) keeps it above the markdown CodeBlock sticky banner,
    which the stock UI stacks at z-index 6 —otherwise a code block's copy
    button row slides OVER the header and drifts as it scrolls past. */
-[data-dsh-float] [data-phase='active'] header {
+[data-dsh-float] [data-phase='active'] [data-slot='conversation.header'] > header {
   position: relative;
   z-index: 8;
 }
@@ -86,7 +95,7 @@
 [data-dsh-aqua] [data-dsh-aqua-ambient] {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   pointer-events: none;
   overflow: hidden;
   background:
@@ -145,7 +154,7 @@
 [data-dsh-aqua] [data-dsh-aqua-wallpaper] {
   position: fixed;
   inset: 0;
-  z-index: -1;
+  z-index: 0;
   overflow: hidden;
 }
 
@@ -523,7 +532,7 @@ html[data-dsh-float][data-dsh-aqua-wallpaper][data-dsh-aqua-media='video'] body[
 /* ---------- Session header: a detached glass card, same recipe as the
    composer. The bottom edge opens into the chat —no bottom border and a
    shallow shadow, so the original header/chat divider line is gone. ---------- */
-[data-dsh-float] header {
+[data-dsh-float] [data-phase='active'] [data-slot='conversation.header'] > header {
   margin: 12px 16px 0;
   padding: 10px 16px 8px;
   border: 1px solid rgba(19, 45, 83, 0.26);
@@ -536,11 +545,11 @@ html[data-dsh-float][data-dsh-aqua-wallpaper][data-dsh-aqua-media='video'] body[
   backdrop-filter: blur(var(--dsh-aqua-blur, 14px));
 }
 
-[data-dsh-float] header::after {
+[data-dsh-float] [data-phase='active'] [data-slot='conversation.header'] > header::after {
   display: none;
 }
 
-[data-dsh-float] body[data-ds-dark-theme] header {
+[data-dsh-float] body[data-ds-dark-theme] [data-phase='active'] [data-slot='conversation.header'] > header {
   border-color: rgba(148, 180, 220, 0.32);
   border-bottom-color: transparent;
   background: var(--dsh-aqua-glass-card-dark);
@@ -552,7 +561,7 @@ html[data-dsh-float][data-dsh-aqua-wallpaper][data-dsh-aqua-media='video'] body[
 /* Collapsed: the floating rail reaches 12px into the chat gutter, so the
    header card steps right (28px inset = 16px clear of the rail's edge) —
    the sidebar keeps its geometry, the top bar does the adjusting. */
-[data-dsh-float] [data-dsh-frame][data-sidebar-collapsed] header {
+[data-dsh-float]:not([data-windows-titlebar]):not([data-platform='darwin']) [data-dsh-frame][data-sidebar-collapsed] [data-phase='active'] [data-slot='conversation.header'] > header {
   margin-left: 28px;
 }
 
@@ -561,30 +570,45 @@ html[data-dsh-float][data-dsh-aqua-wallpaper][data-dsh-aqua-media='video'] body[
    tint. ---------- */
 [data-dsh-float] [class*='sidebarCol'] {
   position: relative;
-  /* Above the header card (8): the settings panel is a fixed overlay
-     trapped in this stacking context, so the sidebar itself must outrank
-     the header or the panel's top edge sits under the top bar. */
   z-index: 9;
   margin: 12px;
   padding: 10px 12px 14px;
   border: 1px solid rgba(19, 45, 83, 0.26);
-  border-right: 1px solid rgba(150, 190, 245, 0.65);
+  border-right-color: rgba(150, 190, 245, 0.65);
   border-radius: 20px;
   background: var(--dsh-aqua-glass-card-light);
-  backdrop-filter: blur(var(--dsh-aqua-blur, 14px));
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.5),
     0 10px 34px rgba(19, 45, 83, 0.16);
+  backdrop-filter: blur(var(--dsh-aqua-blur, 14px));
   overflow: hidden;
 }
 
 [data-dsh-float] body[data-ds-dark-theme] [class*='sidebarCol'] {
   border-color: rgba(148, 180, 220, 0.32);
-  border-right: 1px solid rgba(148, 180, 220, 0.2);
+  border-right-color: rgba(148, 180, 220, 0.2);
   background: var(--dsh-aqua-glass-card-dark);
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.07),
     0 8px 30px rgba(2, 6, 14, 0.32);
+}
+
+/* Windows keeps the native collapse/open and new-session buttons fixed in
+   the titlebar, even when the sidebar track is zero-width. A backdrop-filter
+   on their ancestor re-anchors them to the floating card and clips them.
+   Blur a sibling decoration instead; keep the native fixed positioning. */
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame] > [class*='sidebarCol'] {
+  backdrop-filter: none;
+}
+
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame]:not([data-sidebar-collapsed]) > [class*='sidebarCol']::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  backdrop-filter: blur(var(--dsh-aqua-blur, 14px));
 }
 
 /* Collapsed rail: floats too (mica mode). The rail keeps the app's own
@@ -602,11 +626,37 @@ html[data-dsh-float][data-dsh-aqua-wallpaper][data-dsh-aqua-media='video'] body[
   margin: 12px -12px 12px 12px;
   padding: 0;
   border-radius: 16px;
-  /* The right margin rides the same clock as the fade, so the rail eases
-     into its floating spot as the wide content dissolves. The transform
-     entry keeps the hover press smooth while collapsed (the collapsed rule
-     out-ranks the press transition, so it must carry transform too). */
   transition: margin 150ms var(--ds-ease-in-out), border-radius 150ms var(--ds-ease-in-out), transform 0.1s ease-out;
+}
+
+/* Desktop collapse is a zero-width column, not the web's 56px icon rail.
+   Do not let margins, padding or a border paint into the conversation. */
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] [class*='sidebarCol'],
+[data-dsh-float][data-platform='darwin'] [data-dsh-frame][data-sidebar-collapsed] [class*='sidebarCol'] {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  box-shadow: none;
+  backdrop-filter: none;
+}
+
+/* macOS supplies its reopen button in shell.leading. Windows instead keeps
+   its fixed titlebar controls inside the collapsed sidebar DOM: those must
+   remain visible and escape the zero-width column. */
+[data-dsh-float][data-platform='darwin'] [data-dsh-frame][data-sidebar-collapsed] [class*='sidebarCol'] {
+  visibility: hidden;
+}
+
+/* A persistent home header carries window/navigation controls in DSH 0.2.
+   Keep it native and inert to Aqua hover effects instead of painting an
+   empty glass card above the hero. Do not hide the controls or drag seam. */
+[data-dsh-float] [data-phase]:not([data-phase='active']) [data-slot='conversation.header'] > header {
+  transform: none !important;
+}
+
+[data-dsh-aqua] [data-phase]:not([data-phase='active']) [data-slot='conversation.header'] > header > [data-dsh-aqua-glow] {
+  display: none;
 }
 
 /* The sidebar root freezes at the expanded column width via an inline
@@ -617,6 +667,68 @@ html[data-dsh-float][data-dsh-aqua-wallpaper][data-dsh-aqua-media='video'] body[
    and collapse its rows into vertical text. */
 [data-dsh-float] [data-dsh-frame]:not([data-sidebar-collapsed]) [data-dsh-sidebar-root] {
   width: 100% !important;
+}
+
+/* ---------- Right sidebar: match the left floating glass card in both
+   normal and fullscreen presentations. Inset the docking surface inside
+   the host's measured bounds so its width, slide distance and titlebar
+   avoidance stay intact. Decorate the docking content itself: a blur or
+   clipping wrapper would trap independent fixed floating panes/menus. ---------- */
+[data-dsh-aqua] [data-dsh-frame] [data-rightbar-col] {
+  background: transparent;
+}
+
+[data-dsh-float] [data-rightbar-col] [data-sidebar-right-panel] {
+  box-sizing: border-box;
+  padding: 12px;
+}
+
+[data-dsh-float] [data-rightbar-col] [data-sidebar-right-panel] [data-dockkit-content]:not([class*='float']),
+[data-dsh-float] [data-rightbar-col] [data-sidebar-right-panel] [data-dockkit-empty] {
+  box-sizing: border-box;
+  border: 1px solid rgba(19, 45, 83, 0.26);
+  border-left-color: rgba(150, 190, 245, 0.65);
+  border-radius: 20px;
+  background: var(--dsh-aqua-glass-card-light);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 10px 34px rgba(19, 45, 83, 0.16);
+  backdrop-filter: blur(var(--dsh-aqua-blur, 14px));
+  overflow: hidden;
+}
+
+[data-dsh-float] body[data-ds-dark-theme] [data-rightbar-col] [data-sidebar-right-panel] [data-dockkit-content]:not([class*='float']),
+[data-dsh-float] body[data-ds-dark-theme] [data-rightbar-col] [data-sidebar-right-panel] [data-dockkit-empty] {
+  border-color: rgba(148, 180, 220, 0.32);
+  border-left-color: rgba(148, 180, 220, 0.2);
+  background: var(--dsh-aqua-glass-card-dark);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.07),
+    0 8px 30px rgba(2, 6, 14, 0.32);
+}
+
+/* Windows gives the first fullscreen pane only a top-left content corner.
+   The inset card needs all four corners, independent of style load order. */
+[data-dsh-float][data-windows-titlebar] [data-rightbar-col] [data-sidebar-right-panel='fullscreen'] [data-dockkit-column='0'][data-dockkit-pane] {
+  border-radius: 20px;
+}
+
+/* Guide launchers use the same material as the surrounding sidebar in
+   both presentations; document previews and terminals keep their own fills. */
+[data-dsh-float] [data-sidebar-right-panel] [data-sidebar-right-guide-entry] {
+  border-radius: 14px;
+  background: var(--dsh-aqua-glass-card-light);
+}
+
+[data-dsh-float] body[data-ds-dark-theme] [data-sidebar-right-panel] [data-sidebar-right-guide-entry] {
+  background: var(--dsh-aqua-glass-card-dark);
+}
+
+/* Compat keeps the stock layout in both presentations and follows its
+   translucent surface tokens without changing fullscreen geometry. */
+[data-dsh-compat] [data-rightbar-col] [data-sidebar-right-panel] [data-dockkit-content]:not([class*='float']),
+[data-dsh-compat] [data-rightbar-col] [data-sidebar-right-panel] [data-dockkit-empty] {
+  background: var(--dsw-alias-bg-layer-2);
 }
 
 /* ---------- Trajectory view: a glass panel aligned with the header card's
@@ -852,23 +964,15 @@ html[data-dsh-float][data-dsh-aqua-wallpaper][data-dsh-aqua-media='video'] body[
 /* Chat text: a 1px halo blurs the backdrop right at the glyph edges (the
    closest CSS can get to "frost the background near the text"), plus a
    whisper of drop shadow in light mode. */
+/* Preserve the host's native text rasterization on glass surfaces. */
 [data-dsh-aqua] [data-conversation-scroll] {
-  text-shadow: 0 0 1px rgba(0, 0, 0, 0.4);
+  text-shadow: none;
 }
 
-[data-dsh-aqua] body:not([data-ds-dark-theme]) [data-conversation-scroll] {
-  text-shadow: 0 0 1px rgba(255, 255, 255, 0.55), 0 1px 2px rgba(19, 45, 83, 0.08);
-}
-
-[data-dsh-float] [role='dialog'] h2 {
-  font-family: 'Space Grotesk Variable', 'Noto Serif SC', 'Songti SC', 'STSong', 'SimSun', serif;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-}
-
+[data-dsh-float] [role='dialog'] h2,
 [data-dsh-float] [role='treeitem'] {
-  font-family: 'Space Grotesk Variable', 'Noto Serif SC', 'Songti SC', 'STSong', 'SimSun', serif;
-  font-weight: 500;
+  font-family: inherit;
+  letter-spacing: normal;
 }
 
 /* ---------- Page-level transitions: phase flips, view tabs, entrances.

@@ -2,8 +2,7 @@
  * Aqua client plugin body: the toggleable glassmorphism skin. Owns the durable
  * enable flag (localStorage), applies/retracts the theme layer through
  * {@link AquaLayer}, and registers two settings surfaces:
- * - the master on/off card into the Plugins section (`settings.plugin.item`,
- *   same shape as the other plugin cards);
+ * - the master on/off card into its own Plugins settings tab (`settings.plugins.tab`);
  * - every glass knob into the General section's Appearance row area
  *   (`settings.general.item`, right under 外观).
  * One click on the master switch returns the stock UI (every layer is an
@@ -15,8 +14,6 @@
 // imported below.
 import type { Context as ClientContext } from '@deepseek-ai/cordis'
 import type { BoundActions } from '@deepseek-ai/dsh-client-ui-slots'
-// Type-only: pulls the `settings.plugin.item` SlotMap merge.
-import type {} from '@deepseek-ai/dsh-client-ui-settings-plugins/client'
 // Type-only: pulls the `settings.general.item` SlotMap merge.
 import type {} from '@deepseek-ai/dsh-client-ui-settings/client'
 import { AquaPluginCard, type AquaPluginCardInjected } from './AquaPluginCard.tsx'
@@ -174,16 +171,12 @@ export function apply(ctx: ClientContext): void {
     }
   }
 
-  // Master switch card in the Plugins configurable tab.
-  // `key` is what DSH 0.1.2 dispatches on: since the slot became keyed, the tab
-  // renders one card per settings namespace the host serves, so the key has to
-  // match the namespace the node half registers (`aqua`) or the card silently
-  // never renders. `id` is kept for the older list-shaped slot.
-  ctx.slots.inject('settings.plugin.item', () => ctx.slots.register({
-    name: 'settings.plugin.item',
+  // Master switch card in its own Plugins settings tab.
+  ctx.slots.inject('settings.plugins.tab', () => ctx.slots.register({
+    name: 'settings.plugins.tab',
     id: 'aqua',
-    key: 'aqua',
-    order: 5,
+    order: 20,
+    label: () => ctx.locale.bind(NS)('aqua.title'),
     store: pluginStore,
     locale: NS,
     inject: pluginInjected,

@@ -14,7 +14,7 @@ const nav = [...document.querySelectorAll('button, a')].find((e) => (e.textConte
 click(nav)
 await sleep(2500)
 
-const slot = document.querySelector('[data-slot="settings.plugin.item"]')
+const slot = document.querySelector('[data-slot="settings.plugins.tab"]')
 const cards = slot ? [...slot.children] : []
 const card = cards.find((e) => (e.textContent || '').includes('玻璃主题')) ?? null
 const toggle = card ? card.querySelector('[role="switch"], button, input') : null

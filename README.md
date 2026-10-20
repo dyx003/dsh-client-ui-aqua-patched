@@ -1,185 +1,180 @@
-> **Unofficial patched fork — repaired for DSH 0.1.2-rc.1.**
-> Upstream `dsh-client-ui-aqua@1.3.1` (npm, 2026-08-17) and the upstream repository HEAD
-> do not work on the DSH 0.1.2 line. This fork fixes three independent defects and is
-> verified end-to-end on DSH 0.1.2-rc.1 (host Node v22.21.1). Diagnosis, exact diff,
-> evidence and caveats: **[REPAIR.md](REPAIR.md)**. Not affiliated with, endorsed by, or
-> maintained by the upstream author. Distributed under **AGPL-3.0-only** — see
-> [License](#license). The upstream source that this fork is based on is described under
-> [Upstream and this fork](#upstream-and-this-fork).
+# DSH Transparent UI · Aqua 桌面适配版
 
-# dsh-client-ui-aqua — Aqua glassmorphism theme for DeepSeek Harness
+基于 Aqua 玻璃质感主题，为 **DeepSeek Harness 0.2.1-rc.2** 整理的界面适配与修复版本。重点修复桌面背景遮挡、侧栏收起后的按钮定位，以及右侧栏普通和放大状态下的透明材质与悬浮布局。
 
-English | [中文](README.zh.md)
+| 项目 | 当前说明 |
+| --- | --- |
+| 插件包名 | `dsh-client-ui-aqua` |
+| 当前补丁版本 | `1.3.1-patch.4` |
+| 适配目标 | DSH `0.2.1-rc.2` |
+| 主要适配环境 | Windows 桌面布局，兼顾 Web 布局 |
+| 分发许可证 | AGPL-3.0-only |
 
-## What it does, in one line
+> 当前说明对应本仓库内的源码与预构建产物。最新的右侧栏放大悬浮效果已完成静态检查，原生 Electron 窗口中的视觉验收仍待确认。
 
-Install it and the DSH web UI becomes frosted glass — the header, sidebar, composer, stats line and trajectory view turn into floating glass panes over a living fluid board or your own wallpaper. Flip one switch and the stock UI comes back exactly, with nothing left behind.
+## 原作者与项目来源
 
-## Install
+本项目基于原作者的 Aqua 主题进行适配，玻璃材质、流体背景、壁纸和环境装饰等原有设计来自原作。
 
-Profile: **`web`** — the browser UI profile. Copy-paste, three commands:
+- **原作者 GitHub：** [WYH66666666](https://github.com/WYH66666666)
+- **原作者项目：** [WYH66666666/DSH-Transparent-UI-Plugin](https://github.com/WYH66666666/DSH-Transparent-UI-Plugin)
+- **此前修补版本：** [Aliww2468/dsh-client-ui-aqua-patched](https://github.com/Aliww2468/dsh-client-ui-aqua-patched)
 
-```sh
-dsh plugin --profile web add github:Aliww2468/dsh-client-ui-aqua-patched
-dsh --profile web --dump-config     # verify: an "# == dsh-client-ui-aqua" layer must appear
-dsh web                             # restart the host; the theme is ON by default
+当前工作目录基于此前修补版本继续修改。本次新增工作主要是 DSH 0.2.1-rc.2 的接口和桌面布局适配，以及右侧栏放大后的悬浮效果。原始作品的版权归原作者所有，本适配版为社区修改版本。
+
+## 本次适配内容
+
+### 1. 修复桌面主栏遮挡背景
+
+新版桌面布局增加了会绘制实色背景的主栏容器，导致主题的流体或壁纸被覆盖。
+
+本次为主栏增加主题专用定位标记，并在主题开启时将对应容器透明化，恢复背景与界面内容的正确层级，同时保留流体背景原有的透明度和备用渐变。
+
+### 2. 恢复左侧栏的悬浮玻璃效果
+
+- 恢复展开侧栏的 **12px 留白**与玻璃卡片外观。
+- 玻璃材质随深浅色和磨砂参数变化。
+- 区分 Web 的 **56px 折叠图标栏**与桌面的**零宽折叠栏**。
+- 桌面侧栏收起时移除多余边距、边框和投影，避免挤占主会话区域。
+- 调整展开内容的宽度，使其跟随玻璃卡片内部空间。
+
+### 3. 修复 Windows 标题栏按钮定位
+
+侧栏上的背景模糊会影响其内部原生固定按钮的定位，造成展开、新建会话等按钮偏移或在收起后不可见。
+
+本次将 Windows 侧栏的模糊效果移到独立伪元素，保留原生标题栏按钮的固定定位；侧栏收起后仍保留展开入口。
+
+### 4. 适配右侧栏普通与放大状态
+
+右侧栏在普通停靠状态和点击放大后的全屏状态下，共用同一套悬浮玻璃样式：
+
+| 样式 | 适配结果 |
+| --- | --- |
+| 四周留白 | 面板边界内部保留 **12px** 间距 |
+| 卡片圆角 | **20px** 四角圆角 |
+| 背景材质 | 与左侧栏共用深浅色玻璃配方 |
+| 参数联动 | 模糊度、磨砂度设置继续生效 |
+| 边框与阴影 | 使用与左侧栏呼应的边框和投影 |
+| 放大状态 | 继续应用玻璃材质、留白、圆角和阴影 |
+| Windows 全屏首栏 | 覆盖原生单侧圆角规则，统一为卡片四角 |
+| 窄屏自动全屏 | 使用相同的悬浮样式规则，视觉表现待专项确认 |
+
+留白设置在宿主计算的面板边界内，继续沿用宿主的宽度、最大宽度、收起动画和标题栏避让逻辑。“开始”页入口也使用对应的玻璃材质。
+
+独立浮窗继续使用自己的布局。兼容模式保留原生几何布局，仅应用对应的半透明背景。
+
+### 5. 调整会话顶栏
+
+通过当前版本的 `conversation.header` 槽位定位活动会话顶栏，保留玻璃卡片效果。首页顶栏保留原生导航、窗口按钮和拖拽区域，避免出现空白玻璃卡片。
+
+### 6. 更新插件接口与兼容声明
+
+- 将总开关接入当前版本的 `settings.plugins.tab` 槽位。
+- 保留外观设置中的主题调节入口。
+- 移除已不再使用的宿主设置命名空间注册。
+- 修正宿主入口的类型声明，使其与当前实现一致。
+- 将 DSH engine 和相关 peer 声明更新到 `0.2.1-rc.2`。
+- 移除主插件未使用的旧 invariant peer 依赖声明。
+
+## 保留的原作功能
+
+本次适配继续保留 Aqua 原有的主要功能：
+
+- 云母悬浮效果与兼容模式切换。
+- 深浅色外观、模糊度和磨砂度调节。
+- 流体背景、图片壁纸和视频壁纸。
+- 流体颜色、背景亮度及壁纸相关参数调节。
+- 粒子鲸鱼、小鱼、气泡与网状环境装饰。
+- 鼠标辉光、悬停下压和页面边缘渐隐效果。
+- 主题总开关。
+
+这些功能的原始设计归属于原作；“保留功能”不代表本次已经对每一项完成专项回归测试。
+
+## 安装与生效
+
+本仓库包含可供加载的预构建产物，包名继续使用 `dsh-client-ui-aqua`。本次适配版本应从对应的适配仓库或本地目录安装。
+
+### 从本地目录安装
+
+将下面的路径替换为本仓库所在目录。桌面版示例使用 `desktop` profile；Web 版请替换为实际使用的 profile，例如 `web`。
+
+```powershell
+dsh plugin --profile desktop add "link:C:/path/to/your-repository"
 ```
 
-`git` must be on `PATH` and `github.com` reachable (an HTTP proxy may be required). The plugin appends itself to `dsh.profile.bundles`. Controls are under [Usage](#usage); permissions, external services and compatibility under [Permissions, external services and compatibility](#permissions-external-services-and-compatibility).
+安装或更新后，完整退出 Harness，包括托盘驻留进程，再重新打开。Web 部署需要重启对应宿主并刷新页面。
 
-### From this repository (recommended)
+### 上传到自己的 GitHub 后安装
 
-The block above is the whole thing: it installs this patched build and registers it as a
-profile plugin layer through the package's `dsh.bundle.patch`, on every platform.
+将 `YOUR_USERNAME/YOUR_REPOSITORY` 替换为**已上传本次适配代码**的仓库路径：
 
-### From a local clone
-
-```sh
-git clone https://github.com/Aliww2468/dsh-client-ui-aqua-patched.git
-dsh plugin --profile web add link:/absolute/path/to/dsh-client-ui-aqua-patched
+```powershell
+dsh plugin --profile desktop add github:YOUR_USERNAME/YOUR_REPOSITORY
 ```
 
-### Uninstall
+上方“原作者与项目来源”中的链接用于署名和追溯来源；远程安装命令应填写实际包含本次补丁的仓库。
 
-```sh
-dsh plugin --profile web remove dsh-client-ui-aqua
+## 使用入口
+
+- **主题总开关：** 设置 → 插件 → 玻璃主题。
+- **主题参数：** 设置 → 通用设置 → 外观下方的主题调节区域。
+- **右侧栏：** 打开后使用普通悬浮卡片，点击放大按钮后使用放大悬浮卡片。
+
+要使用本次新增的悬浮几何效果，请选择云母模式；兼容模式继续保留宿主原有布局。
+
+## 修改样式与同步产物
+
+视觉修改可使用仓库提供的同步工具。需要 Node.js **22.13 或以上版本**。
+
+```powershell
+npm run sync:visual
+npm run check:visual
+node --check lib/client.js
 ```
 
-Then restart `dsh web`. Every visual effect is an effect handle disposed with the plugin,
-so the stock UI returns.
+也可以运行：
 
-### Requirements
-
-DSH **0.1.2-rc.1** — the line this fork is verified against (host Node v22.21.1).
-Installing appends `dsh-client-ui-aqua` to `dsh.profile.bundles`, so the host must be
-**restarted** before the theme loads.
-
-### ⚠️ Do not install the bare package name from npm
-
-```sh
-dsh plugin --profile web add dsh-client-ui-aqua   # ← installs the UNPATCHED upstream 1.3.1
+```powershell
+./build.ps1
+./build.ps1 -Check
 ```
 
-That bare name resolves to upstream's npm release, which does **not** work on the DSH 0.1.2
-line: its browser half imports `@deepseek-ai/dsh-client-runtime`, a package DSH 0.1.2
-removed, and its settings card throws on every page load. Use the `github:` form above (or
-the local-clone form) until upstream ships a fix. Details in [REPAIR.md](REPAIR.md).
-## What you get
+这个同步过程只更新 [主题样式](src/client/aqua.module.css) 和 [布局标记逻辑](src/client/seam-stamper.ts) 对应的产物片段，不是整个 TypeScript 项目的完整构建。修改其他模块时，需要完整构建或相应的产物同步。
 
-Everything below is **upstream's design**, carried over unchanged by this fork — this fork only repairs the three defects that stop it from loading (see [REPAIR.md](REPAIR.md)).
+当前 [构建配置](tsdown.config.ts) 和 [开发依赖](package.json) 仍包含上游 monorepo 的配置与 `workspace:` 依赖，不应将此仓库视为已完成独立构建环境整理的项目。
 
-- **Two modes**: **Mica** restyles the layout into floating glass cards (blur and frost adjustable), while **Compatibility Mode** keeps the stock layout byte-for-byte and only swaps the material to generic glass — other plugins' UI gets the same treatment automatically
-- **Free backdrop**: a living fluid board (hue adjustable) or your own wallpaper (fills the page, aspect preserved, with its own blur and frost); light wallpapers look best in light mode, dark wallpapers in dark mode
-- **Background brightness**: follows the resolved scheme — dark mode darkens (0–50), light mode brightens (50–100), 50 is unchanged
-- **Particle whale**: the deepseek.com/harness centerpiece fish (a 2D port of the site's particle engine), centered in the chat area right of the sidebar — white particles on dark, gray on light, toggleable in settings
-- **Glossy "Harness" badge**: in dark mode the sidebar wordmark wears the official nameplate pill (135° gradient ring + soft glow); light mode keeps the stock plate
-- **Edge fades**: 5px gradient blur bands pinned to the top and bottom of the page, above the chat content — scrolling content melts into the edges; faint white veil on light, faint black on dark
-- One switch: off restores the stock UI exactly, and every effect is removed with the plugin
+## 验证范围
 
-## Visible proof
+| 范围 | 已记录的验证情况 |
+| --- | --- |
+| 源码与视觉产物一致性 | 已通过检查 |
+| JavaScript 语法、包元数据与差异格式 | 已通过检查 |
+| 插件和设置槽位 | 已通过连接页面的 Inspect 确认注册 |
+| 背景透明、深浅色、磨砂联动、总开关 | 在此前同版本隔离 Web 实例中验证 |
+| Windows 侧栏收起与重新展开 | 在隔离 Web 实例的 Windows 布局模拟中验证 |
+| 右侧栏普通悬浮卡片 | 在此前隔离实例中验证 |
+| 最新右侧栏放大悬浮样式 | 已同步产物并通过静态检查，窗口视觉验收待确认 |
 
-Real output, not a mock-up — produced by the dependency-free harness in `tools/` against a throwaway DSH 0.1.2-rc.1 instance (host Node v22.21.1), with the published artifacts of this repository installed:
+目前没有完成原生 Electron 窗口交互、macOS、窄屏放大效果、多屏缩放、视频壁纸及各类文档预览的完整专项回归。其他 DSH 版本也不在本次已确认的适配范围内。
 
-```console
-$ dsh plugin --profile web add github:Aliww2468/dsh-client-ui-aqua-patched
-+ dsh-client-ui-aqua github:Aliww2468/dsh-client-ui-aqua-patched
+## 主要文件
 
-$ node tools/cdp-aqua-test.mjs "http://127.0.0.1:<port>/?token=<token>" 15000
-DOM: {"title":"DeepSeek Harness","ambient":true,"fluidCanvas":true,"wallpaperLayer":true,"aquaStyleTags":1,"lsEnabled":null,"bodyChildren":25}
-EXCEPTIONS: []
-CONSOLE_ERRORS: []
-LOG_ERRORS: []
-RESULT: PASS
+| 文件 | 用途 |
+| --- | --- |
+| [主题样式](src/client/aqua.module.css) | 透明材质、悬浮卡片与桌面布局适配 |
+| [布局标记逻辑](src/client/seam-stamper.ts) | 为目标布局容器补充主题定位标记 |
+| [客户端入口](src/client/index.ts) | 注册主题设置与客户端功能 |
+| [宿主入口](src/index.ts) | 当前插件的宿主入口 |
+| [前端产物](lib/client.js) | 安装时加载的客户端代码 |
+| [包元数据](package.json) | 插件入口、版本和 DSH 兼容声明 |
+| [Bundle 补丁](cordis.patch.yml) | 插件挂载声明 |
+| [视觉同步工具](tools/sync-visual-bundle.mjs) | 同步样式与布局标记到现有产物 |
+| [更新记录](CHANGELOG.md) | 各轮适配与修复内容 |
 
-$ node tools/cdp-eval.mjs "<url>" 12000 @tools/expr-toggle.js
-VALUE: {"cardText":"glass theme card ... master switch on","foundToggle":true,
-        "appliedBefore":true,"switchedOff":true,"appliedAfterOff":false,
-        "canvasAfterOff":false,"flagAfterOff":"false",
-        "appliedAfterOn":true,"flagAfterOn":"true"}
-EXCEPTIONS: []
-```
+此前 DSH 0.1.2 版本的修补过程见 [历史修复记录](REPAIR.md)，此前分支的上传过程见 [历史发布记录](PUBLISH.md)。这些文档用于追溯历史，不作为当前版本的完整验收依据。
 
-Read it as: the layer really rendered (`ambient`, `fluidCanvas`, `wallpaperLayer`, one injected stylesheet), the page stayed clean (no exceptions, no console errors, no log errors), and the master switch genuinely turns the layer **off and back on** (`appliedAfterOff:false` → `appliedAfterOn:true`, with the flag persisted). Output is trimmed to the asserted fields.
+## 许可证与致谢
 
-To reproduce on your own machine: run the three install commands above, then the two harness commands — about a minute, and nothing beyond Node and Chrome is needed. Upstream's own screenshots of the theme are under [Upstream and this fork](#upstream-and-this-fork).
+本适配版按 **AGPL-3.0-only** 分发，保留仓库中的 [LICENSE](LICENSE)。原始作品及其素材的版权归相应权利人所有，后续分发与修改应保留必要的版权、许可证和来源说明。
 
-## Permissions, external services and compatibility
-
-Audited from the shipped artifacts (`lib/client.js`, `lib/index.js`) — the exact bytes hashed in REPAIR.md §3.
-
-| Question | Answer |
-|---|---|
-| Network calls at runtime | **None.** The browser half contains zero `fetch`, `XMLHttpRequest`, `WebSocket`, `EventSource` or `sendBeacon` occurrences; the node half imports nothing and never touches the network. |
-| Files, credentials, cookies | **None.** No filesystem or credential-service use, no `document.cookie`, no `eval` / `new Function`, no remote code loading. |
-| What it does touch | Injects one `<style>` element and a few decorative DOM nodes (ambient scene, wallpaper layer, edge fades) into the page, plus one settings namespace named `aqua`. That is the entire effect. |
-| Stored state | Only `localStorage` keys under `dsh.ui-aqua.*` (enable flag, mode, blur, frost, backdrop, wallpaper, whale, critters, mesh, spotlight, press, …). A custom wallpaper is kept as a data URL in `localStorage`, so a very large image or video can hit the browser storage quota. |
-| Telemetry / accounts | None. No analytics, no account, no API key. |
-| Install-time code execution | **None.** `package.json` declares no `install` / `postinstall` / `prepare` script and `lib/` ships prebuilt, so `dsh plugin add` never runs package code. |
-| External services | None for the theme itself. Installing reaches GitHub once and needs `git`; on a restricted network an HTTP proxy is required. |
-| Compatibility | Verified on **DSH 0.1.2-rc.1** with host Node v22.21.1 only. Upstream's peer baseline was `^0.1.0-rc.5`; this fork is not tested on other DSH lines. Upstream stopped maintaining the plugin, so a future DSH release can break it again — keep the `dump-config` step in your upgrade routine. |
-| Uninstall | `dsh plugin --profile web remove dsh-client-ui-aqua` then restart. Every visual effect is an effect handle disposed on removal, so the stock UI returns. |
-| Support | A one-off community repair, not upstream maintenance. No warranty; the audited artifact hashes are the only compatibility guarantee. |
-
-## DSH plugin spec conformance
-
-- **Host half exports `apply(ctx)`** — `lib/index.js` ships `export { apply }` with
-  `function apply(ctx)`. It registers the settings namespace that the browser
-  half's card is keyed by (`aqua`), which is what makes the master switch
-  dispatchable on DSH 0.1.2.
-- **Browser half exports `apply` + `inject`** — `lib/client.js` is a lazy-CJS
-  `window.__ModuleLoader__.load({ id: "dsh-client-ui-aqua", factory })` bundle whose
-  factory returns `exports.apply` and `exports.inject = ['theme', 'slots', 'locale']`.
-- **Bundle patch** — `dsh.bundle.patch` points at `cordis.patch.yml`, which inserts
-  the single loader row `{ id: ui-aqua, name: 'dsh-client-ui-aqua' }`. The package
-  name matches that row, so one `dsh plugin add` both installs and mounts the plugin.
-- **Browser roster** — `dsh.client` declares `platform: web` plus the module ids the
-  web shell must have loaded first.
-- **No build step** — prebuilt artifacts ship in `lib/`, so installation never runs a
-  package script.
-
-## Usage
-
-Reload the web UI. Aqua is **on by default**; the master switch lives in **Settings → Plugins → Glass theme** (same shape as the other plugin cards), and every other control sits directly under **Settings → General → Appearance** (no title of its own): mode, blur/frost (Mica mode), fluid color, background brightness, backdrop (fluid/wallpaper) with its wallpaper controls, and the particle-whale toggle. With the master switch off, the whole control block under Appearance is hidden.
-
-## Upstream and this fork
-
-This repository is a fork of [`WYH66666666/DSH-Transparent-UI-Plugin`](https://github.com/WYH66666666/DSH-Transparent-UI-Plugin) at commit `d94431a` (2026-08-22), based on the published npm package `dsh-client-ui-aqua@1.3.1`. Upstream calls the package `@deepseek-ai/dsh-client-ui-aqua` inside its own monorepo; the published name is the unscoped `dsh-client-ui-aqua`, which this fork keeps so it stays a drop-in replacement.
-
-**All design and user-visible behaviour is upstream's work.** This fork changes exactly three things — the module the browser half imports, the key its settings card registers under, and the node half that advertises the settings namespace — then ships the result as audited artifacts. The full diff is in [REPAIR.md](REPAIR.md) §2, the verification in §3.
-
-### Upstream's own notice — it describes upstream's build, not this fork
-
-> **Notice ⚠️**: As DSH has been updated, I am unable to promptly update the plugin with the new API due to my academic commitments. Please use an alternative agent to replace or repair it yourself to avoid crashes when installing this plugin.
-
-That warning is precisely why this fork exists. It applies to upstream's published build: `dsh plugin --profile web add dsh-client-ui-aqua` installs the unpatched 1.3.1, whose browser half imports a package DSH 0.1.2 removed and whose settings card throws on every page load. This fork **is** the repair that notice asks for.
-
-### Upstream's original description
-
-> Aqua is a highly customizable glassmorphism theme for the DeepSeek Harness web UI. The header, sidebar, composer, stats line, and trajectory view all become panes of frosted glass. You can put video for wallpaper and switch it off and the stock UI comes back exactly, with no source changes to DSH itself.
-
-### Upstream's screenshots
-
-Captured by upstream on the DSH version it targeted, so details of the surrounding chrome may differ from yours.
-
-![](assets/1.png)
-
-![](assets/2.png)
-
-![](assets/3.png)
-
-![](assets/4.png)
-
-### Repository layout
-
-| Path | What it is |
-|---|---|
-| `lib/`, `package.json`, `cordis.patch.yml` | The shipped, audited build — this is what `dsh plugin add` installs. |
-| `src/` | Source-level mirror of the three fixes, for review. Upstream's tree cannot be built standalone (`@deepseek-ai/*` deps are `workspace:^` and `tsdown`/`typescript` are undeclared), so these edits are not type-checked here. |
-| `tools/` | The dependency-free Chrome DevTools Protocol harness used for the verification above. |
-| `REPAIR.md` | Diagnosis, diff, evidence, limitations, license situation. |
-| `PUBLISH.md` | How this fork was published (topics, install command, pushed artifact hashes). |
-| `install.ps1`, `publish.ps1`, `build.ps1` | Upstream's scripts, kept for provenance only — they install the unpatched build and are not supported here. |
-
-## License
-
-The upstream **repository is AGPL-3.0** (its `LICENSE` file), while the npm tarball of the same version declares MIT — an inconsistency upstream introduced, documented in REPAIR.md §5. This fork follows the stricter reading: it keeps upstream's `LICENSE` untouched and is distributed as **AGPL-3.0-only**. If AGPL is incompatible with your deployment, do not install it. Copyright in the original work remains with the upstream author.
+感谢 [WYH66666666](https://github.com/WYH66666666) 提供原始的 [Aqua 透明主题项目](https://github.com/WYH66666666/DSH-Transparent-UI-Plugin)，以及 [Aliww2468](https://github.com/Aliww2468/dsh-client-ui-aqua-patched) 提供此前的兼容修补版本。

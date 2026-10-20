@@ -829,23 +829,24 @@ export class AquaLayer {
     document.documentElement.toggleAttribute(PRESS_ATTRIBUTE, !compat && this.settings.press)
 
     // Backdrop source: flip the ambient container between fluid and wallpaper.
+    const wallpaper = this.settings.wallpaper
+    const background = this.settings.background === 'wallpaper' && wallpaper !== '' ? 'wallpaper' : 'fluid'
     const ambient = document.querySelector<HTMLElement>('[data-dsh-aqua-ambient]')
-    if (ambient !== null) ambient.dataset.background = this.settings.background
+    if (ambient !== null) ambient.dataset.background = background
     if (ambient !== null) ambient.dataset.critters = this.settings.critters ? 'on' : 'off'
     // The wallpaper may be an image or a video: images and small videos are
     // data URLs; large videos are `idb:<id>` markers (blob in IndexedDB);
     // File System Access videos are `fsa:<name>` markers (the handle lives
     // in IndexedDB and re-reads the original file).
-    const wallpaper = this.settings.wallpaper
     const isVideo = wallpaper.startsWith('data:video/') || wallpaper.startsWith('idb:') || wallpaper.startsWith('fsa:')
     const wallpaperLayer = document.querySelector<HTMLElement>('[data-dsh-aqua-wallpaper-layer]')
     if (wallpaperLayer !== null) {
-      wallpaperLayer.dataset.background = this.settings.background
+      wallpaperLayer.dataset.background = background
       wallpaperLayer.dataset.media = isVideo ? 'video' : 'image'
     }
     // Mirror the wallpaper state onto <html> so the stylesheet can scope
     // video-mode readability rules (bubble plates) without touching the app.
-    const wallpaperOn = this.settings.background === 'wallpaper' && wallpaper !== ''
+    const wallpaperOn = background === 'wallpaper'
     document.documentElement.toggleAttribute('data-dsh-aqua-wallpaper', wallpaperOn)
     if (wallpaperOn) {
       document.documentElement.setAttribute('data-dsh-aqua-media', isVideo ? 'video' : 'image')
@@ -854,7 +855,7 @@ export class AquaLayer {
     }
     const img = document.querySelector<HTMLImageElement>('[data-dsh-aqua-wallpaper-img]')
     if (img !== null) {
-      if (this.settings.background === 'wallpaper' && wallpaper !== '' && !isVideo) {
+      if (background === 'wallpaper' && !isVideo) {
         img.src = wallpaper
       } else {
         img.removeAttribute('src')
@@ -862,7 +863,7 @@ export class AquaLayer {
     }
     const video = document.querySelector<HTMLVideoElement>('[data-dsh-aqua-wallpaper-video]')
     if (video !== null) {
-      if (this.settings.background === 'wallpaper' && isVideo) {
+      if (background === 'wallpaper' && isVideo) {
         if (wallpaper.startsWith('idb:')) {
           const id = wallpaper.slice(4)
           if (this.videoBlobId === id && this.videoObjectUrl !== undefined) {

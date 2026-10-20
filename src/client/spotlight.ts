@@ -78,11 +78,8 @@ function hoverGated(): boolean {
 /** Whether the tilt may run on this pane right now. */
 function tiltable(spot: HTMLElement): boolean {
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return false
-  // The settings overlay renders INSIDE the sidebar column: tilting the
-  // sidebar while the panel is open would re-anchor its fixed overlay into
-  // the column — so the sidebar pauses while a dialog exists (the keeper
-  // untraps it instantly the moment the panel mounts).
-  if (spot.matches('[class*="sidebarCol"]') && document.querySelector('[role="dialog"]') !== null) return false
+  // Keep the host sidebar and its collapse control free of injected transforms.
+  if (spot.matches('[class*="sidebarCol"]')) return false
   return true
 }
 

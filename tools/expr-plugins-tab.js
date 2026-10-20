@@ -14,7 +14,7 @@ await new Promise((r) => setTimeout(r, 2500))
 
 const slotsNow = [...new Set([...document.querySelectorAll('[data-slot]')].map((e) => e.getAttribute('data-slot')))]
   .filter((s) => s.indexOf('settings') === 0)
-const pluginItem = document.querySelector('[data-slot="settings.plugin.item"]')
+const pluginItem = document.querySelector('[data-slot="settings.plugins.tab"]')
 const tabText = document.body.innerText.replace(/\s+/g, ' ').slice(0, 700)
 return JSON.stringify({
   clickedPluginsTab: clicked,

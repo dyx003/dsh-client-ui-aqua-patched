@@ -27,6 +27,9 @@ interface Seam {
 const SEAMS: readonly Seam[] = [
   // The layout frame: the sidebar column's direct parent.
   { attribute: 'data-dsh-frame', selector: ':has(> [class*="sidebarCol"])' },
+  // Desktop shells paint an additional opaque center column around the
+  // conversation. Mark the column itself so the backdrop can reach it.
+  { attribute: 'data-dsh-center', selector: '[data-dsh-frame] > [class*="centerCol"]' },
   // The sidebar content root (topmost `root` under the column — settings
   // internals also carry a `root` class but sit deeper, so first match wins).
   { attribute: 'data-dsh-sidebar-root', selector: '[class*="sidebarCol"] [class*="root"]', first: true },
