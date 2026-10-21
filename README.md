@@ -24,8 +24,6 @@
 
 ![自定义壁纸与收起后的悬浮图标栏](assets/preview-wallpaper-collapsed.webp)
 
-以上为 Windows 桌面截图，使用 WebP 压缩并保留原始分辨率，三张合计约 119 KiB。
-
 ## 主要改动
 
 - 修复桌面主栏遮挡流体背景和壁纸的问题。
@@ -36,19 +34,30 @@
 
 ## 安装
 
-需要已安装 Harness，并能在终端使用 `dsh` 和 `git`。桌面版使用 `desktop` profile：
+### 桌面版：通过应用内插件页安装
 
-```powershell
-dsh plugin --profile desktop add github:dyx003/dsh-client-ui-aqua-patched
-```
+1. 打开 DeepSeek Harness `0.2.1-rc.2`，点击左侧栏的 **插件**。
+2. 点击 **添加插件**，在“包名或地址”中填入：
 
-Web 版使用对应的 profile，例如：
+   ```text
+   github:dyx003/dsh-client-ui-aqua-patched
+   ```
+
+3. 按界面提示完成安装，再完整退出 Harness（包括托盘驻留）并重新打开。
+
+`desktop` profile 由桌面应用管理，普通 `dsh` CLI 会拒绝 `--profile desktop`，请使用上面的应用内入口。
+
+### Web 版：通过 CLI 安装
+
+先确认终端中的 `dsh --version` 为 `0.2.1-rc.2`，且 `git`、`pnpm` 可用，再运行：
 
 ```powershell
 dsh plugin --profile web add github:dyx003/dsh-client-ui-aqua-patched
 ```
 
-安装或更新后，**完整退出 Harness（包括托盘驻留）并重新打开**。Web 部署则重启宿主，再刷新页面。
+若使用自定义 profile，将 `web` 替换为对应名称。安装后重启 Web 宿主，再刷新页面。
+
+GitHub 安装需要本机能访问 GitHub；若提示代理连接失败，请先检查本机 Git／代理配置。切换 npm 镜像不能解决 GitHub 连接问题。
 
 ## 使用
 
@@ -58,13 +67,13 @@ dsh plugin --profile web add github:dyx003/dsh-client-ui-aqua-patched
 - **背景：** 可选择流体背景或自定义壁纸，调节模糊、磨砂等参数。
 - **恢复原生界面：** 关闭插件总开关。
 
-卸载桌面 profile 中的插件：
+桌面版在 **插件** 页找到 `dsh-client-ui-aqua` 并选择 **卸载**。Web 版可运行：
 
 ```powershell
-dsh plugin --profile desktop remove dsh-client-ui-aqua
+dsh plugin --profile web remove dsh-client-ui-aqua
 ```
 
-卸载后同样需要完整退出并重新打开；Web 版将 profile 改为实际使用的名称。
+卸载后重新启动对应的桌面应用或 Web 宿主。
 
 ## 开发与验证
 

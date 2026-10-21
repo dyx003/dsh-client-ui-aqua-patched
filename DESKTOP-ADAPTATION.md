@@ -2,6 +2,15 @@
 
 当前补丁：`1.3.1-patch.9`，日期：2026-10-21。源码与构建产物随本仓库提供。
 
+## 安装方式验证（2026-10-21）
+
+- 使用本机安装包提取的 DSH `0.2.1-rc.2` CLI，在独立 `DSH_HOME` 中执行 `plugin --profile web add github:dyx003/dsh-client-ui-aqua-patched`，成功从 GitHub 安装 `1.3.1-patch.9`（提交 `7a75067`）。测试使用 pnpm `11.25.0`。
+- profile 的 dependencies 与 bundles 自动登记 `dsh-client-ui-aqua`；`--dump-config` 包含 `ui-aqua`。启动该隔离实例后，插件页显示版本 `1.3.1-patch.9`、GitHub 来源和组件“运行中”，页面 console error 为空。
+- 普通 CLI 的 `plugin --profile desktop add ...` 实测被拒绝：`profile "desktop" is managed exclusively by the Electron application`。因此 README 删除桌面 CLI 安装、卸载示例，改为应用内插件页；已核对同版本界面的“插件 → 添加插件 → 包名或地址”以及卸载入口，未对用户实际桌面 profile 重复安装。
+- 本机 Git 的 HTTPS 代理当时无法连接。远程安装测试仅在进程环境中将 GitHub HTTPS 地址改由可用 SSH 传输，不修改全局 Git 配置。网络条件是此处验证的前提，不能把代理报错误当成插件不兼容。
+
+测试使用隔离配置，不涉及用户的账号或会话。安装界面、运行中截图及产物哈希记录保存在仓库外工作区的 `.analysis` 测试目录。
+
 ## 修复内容
 
 - 统一 Windows 收起图标栏的五组入场动画：鲸鱼行、新建会话、全局面板、工作区和底部菜单共用 150ms 滑入淡显，消除顶部两项立即出现而下方仍滑动的差异。动画只在宿主 `railIn` 状态生效，结束后不保留 transform，并支持减少动态效果。
