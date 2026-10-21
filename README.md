@@ -43,9 +43,14 @@
    github:dyx003/dsh-client-ui-aqua-patched
    ```
 
-3. 按界面提示完成安装，再完整退出 Harness（包括托盘驻留）并重新打开。
+3. 如需选择依赖源，选择 **npm 官方源**（`https://registry.npmjs.org/`），按界面提示完成安装。依赖源用于解析依赖，插件代码仍从 GitHub 下载。
+4. 确认插件列表中 `dsh-client-ui-aqua` 为 **`1.3.1-patch.9`、已启用**，再完整退出 Harness（包括托盘驻留）并重新打开。
 
-`desktop` profile 由桌面应用管理，普通 `dsh` CLI 会拒绝 `--profile desktop`，请使用上面的应用内入口。
+已在 Windows 桌面版 `0.2.1-rc.2` 的实际 `desktop` profile 中验证：卸载本地目录版本后，使用上述 GitHub 地址和 npm 官方源安装成功，主题设置入口正常注册。下载的前端产物与仓库产物哈希一致，安装目录为独立副本。
+
+安装包自带可加载的构建产物，无需先克隆仓库、运行 `npm install` 或自行构建。`desktop` profile 由桌面应用管理，普通 `dsh` CLI 会拒绝 `--profile desktop`，请使用上面的应用内入口。
+
+若之前从本地目录安装，先在插件页**卸载旧版本，并确认指向源码的旧目录链接已移除**，再安装 GitHub 版本；仅关闭开关不会切换安装来源。若出现 `EPERM ... rename`，先检查是否有旧链接残留；仅清理确认过的目录链接，保留源码目录，再重新安装。详细记录见[安装验证说明](DESKTOP-ADAPTATION.md)。
 
 ### Web 版：通过 CLI 安装
 

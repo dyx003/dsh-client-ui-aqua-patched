@@ -4,9 +4,20 @@
 
 ## 安装方式验证（2026-10-21）
 
+### 实际桌面 profile 的 GitHub 安装
+
+- 已通过桌面应用的插件管理接口卸载 `link:` 本地目录版本，再安装 `github:dyx003/dsh-client-ui-aqua-patched`，显式选择 `https://registry.npmjs.org/`。安装器返回 `application: applied`、版本 `1.3.1-patch.9`，启用警告为空。
+- profile 依赖来源为 GitHub，锁文件记录下载地址对应提交 `7293edc432ae3cf9e4e0a2d958b1ff0f01ec73d8`；安装目录为实体目录，已解除与本地源码目录的链接。
+- 下载的前端与宿主入口产物 SHA-256 均与仓库产物一致；当前页面 `settings.general.item` 中的 `aqua` 设置入口已激活。此处验证下载安装、应用与注册状态，不代表完成原生窗口视觉回归。
+- 首次切换时，卸载后残留的本地目录链接导致 pnpm 替换目录时报 `EPERM ... rename`。核实链接目标后仅移除旧链接，再通过插件管理器安装成功；源码目录保留。权限诊断未发现需修复的目录权限，未改动权限或所有者，无需权限回滚。
+- 切换过程中还发现源码工作区的 Git 入口文件、配置与索引缺失。已保留已有分支引用及历史对象，从既定远程补齐元数据并重建索引；恢复后只有本轮两份安装文档有差异，工作文件和历史提交保留。
+- 本轮使用桌面内置 pnpm `11.28.5`；下载自 GitHub，无需本地源码构建、安装脚本许可或版本豁免。pnpm 输出有 peer dependencies 提示，未阻止包安装与启用。
+
+### 此前隔离的 Web 安装验证
+
 - 使用本机安装包提取的 DSH `0.2.1-rc.2` CLI，在独立 `DSH_HOME` 中执行 `plugin --profile web add github:dyx003/dsh-client-ui-aqua-patched`，成功从 GitHub 安装 `1.3.1-patch.9`（提交 `7a75067`）。测试使用 pnpm `11.25.0`。
 - profile 的 dependencies 与 bundles 自动登记 `dsh-client-ui-aqua`；`--dump-config` 包含 `ui-aqua`。启动该隔离实例后，插件页显示版本 `1.3.1-patch.9`、GitHub 来源和组件“运行中”，页面 console error 为空。
-- 普通 CLI 的 `plugin --profile desktop add ...` 实测被拒绝：`profile "desktop" is managed exclusively by the Electron application`。因此 README 删除桌面 CLI 安装、卸载示例，改为应用内插件页；已核对同版本界面的“插件 → 添加插件 → 包名或地址”以及卸载入口，未对用户实际桌面 profile 重复安装。
+- 普通 CLI 的 `plugin --profile desktop add ...` 实测被拒绝：`profile "desktop" is managed exclusively by the Electron application`。因此 README 删除桌面 CLI 安装、卸载示例，改为应用内插件页；已核对同版本界面的“插件 → 添加插件 → 包名或地址”以及卸载入口，本轮实际桌面 profile 的安装结果见上文。
 - 本机 Git 的 HTTPS 代理当时无法连接。远程安装测试仅在进程环境中将 GitHub HTTPS 地址改由可用 SSH 传输，不修改全局 Git 配置。网络条件是此处验证的前提，不能把代理报错误当成插件不兼容。
 
 测试使用隔离配置，不涉及用户的账号或会话。安装界面、运行中截图及产物哈希记录保存在仓库外工作区的 `.analysis` 测试目录。
@@ -25,7 +36,9 @@
 
 ## 在当前电脑生效
 
-桌面 profile 已将 `dsh-client-ui-aqua` 链接到当前文件夹。`lib/client.js` 已同步，完整退出 Harness（包括托盘驻留）后重新打开即可加载新的元数据和前端产物。无需重装或修改会话、模型配置。
+桌面 profile 当前安装的是 GitHub 来源的 `dsh-client-ui-aqua`，已解除与本地工作区的目录链接。安装完成后完整退出 Harness（包括托盘驻留）并重新打开，以加载安装副本的元数据和前端产物。
+
+修改本地源码不会自动更新已安装的 GitHub 副本。后续修改需先同步构建产物并推送到 GitHub，再通过插件页卸载旧版本、重新使用 GitHub 地址安装。无需修改会话或模型配置。
 
 ## 后续修改与同步
 
