@@ -744,9 +744,11 @@ html[data-dsh-float][data-windows-titlebar] {
 }
 
 /* Reuse the native toggle and commands, including their labels, shortcuts
-   and listeners. Only their collapsed presentation changes. */
+   and listeners. Only their collapsed presentation changes. New-session
+   rules must target the button: its inner label/content spans share the
+   same class-name prefix and must not get another button plate. */
 [data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root] [class*='logoRow'] [class*='toggle'],
-[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root] [class*='newSession'] {
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root] button[class*='newSession'] {
   position: relative;
   inset: auto;
   flex: none;
@@ -778,13 +780,13 @@ html[data-dsh-float][data-windows-titlebar] {
   display: block;
 }
 
-[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root] [class*='newSession'] {
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root] button[class*='newSession'] {
   border: 1px solid var(--dsw-alias-border-l2);
   background: var(--dsh-aqua-glass-card-light);
   margin-bottom: 16px;
 }
 
-[data-dsh-float][data-windows-titlebar] body[data-ds-dark-theme] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root] [class*='newSession'] {
+[data-dsh-float][data-windows-titlebar] body[data-ds-dark-theme] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root] button[class*='newSession'] {
   background: var(--dsh-aqua-glass-card-dark);
 }
 
