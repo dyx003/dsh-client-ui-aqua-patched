@@ -825,6 +825,31 @@ html[data-dsh-float][data-windows-titlebar] {
   height: 24px;
 }
 
+/* Windows disables the native logo/new-session entrance, while the lower
+   groups still slide in. Animate each top-level group once with the same
+   timing, including the whale row, so no buttons snap in ahead of others.
+   railIn is only present after an actual wide-to-rail transition. */
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root][class*='railIn'] > :is([class*='logoRow'], button[class*='newSession'], [class*='panelList'], [class*='regionArea'], [class*='footArea']) {
+  animation: dsh-aqua-sidebar-rail-in 150ms var(--ds-ease-in-out) backwards;
+}
+
+@keyframes dsh-aqua-sidebar-rail-in {
+  from {
+    opacity: 0;
+    transform: translateX(49px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  [data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root][class*='railIn'] > :is([class*='logoRow'], button[class*='newSession'], [class*='panelList'], [class*='regionArea'], [class*='footArea']) {
+    animation: none;
+  }
+}
+
 /* A persistent home header carries window/navigation controls in DSH 0.2.
    Keep it native and inert to Aqua hover effects instead of painting an
    empty glass card above the hero. Do not hide the controls or drag seam. */
