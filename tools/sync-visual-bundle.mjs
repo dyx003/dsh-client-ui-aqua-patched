@@ -13,7 +13,9 @@ import assert from 'node:assert/strict'
 const root = new URL('../', import.meta.url)
 const bundlePath = new URL('lib/client.js', root)
 const original = await readFile(bundlePath, 'utf8')
-const css = await readFile(new URL('src/client/aqua.module.css', root), 'utf8')
+// Git checks out LF; normalize editor-written CRLF before embedding CSS.
+const css = (await readFile(new URL('src/client/aqua.module.css', root), 'utf8'))
+  .replace(/\r\n?/g, '\n')
 const seam = await readFile(new URL('src/client/seam-stamper.ts', root), 'utf8')
 const cssPattern = /const css\$1 = "(?:[^"\\]|\\.)*";\r?\n(?=\t\tconst tagId\$1 = "dsh-client-ui-aqua\/aqua\.module\.css";)/
 assert.equal([...original.matchAll(new RegExp(cssPattern, 'g'))].length, 1,

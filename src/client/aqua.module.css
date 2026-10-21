@@ -593,12 +593,41 @@ html[data-dsh-float][data-dsh-aqua-wallpaper][data-dsh-aqua-media='video'] body[
     0 8px 30px rgba(2, 6, 14, 0.32);
 }
 
-/* Windows keeps the native collapse/open and new-session buttons fixed in
-   the titlebar, even when the sidebar track is zero-width. A backdrop-filter
-   on their ancestor re-anchors them to the floating card and clips them.
-   Blur a sibling decoration instead; keep the native fixed positioning. */
+/* The native menu reserves 84px after collapse for two caption buttons.
+   Aqua moves those buttons into the rail, so keep the expanded 48px menu
+   anchor in both states. The root value also reaches the preload shadow DOM. */
+html[data-dsh-float][data-windows-titlebar] {
+  --dsh-windows-menu-start: 48px !important;
+}
+
+/* Keep the native Windows controls inside their glass card; blur a sibling
+   decoration so fixed menus and tooltips retain their viewport anchors. */
 [data-dsh-float][data-windows-titlebar] [data-dsh-frame] > [class*='sidebarCol'] {
   backdrop-filter: none;
+}
+
+/* Put the expanded collapse button beside the brand, using the native
+   logo-row flex layout. Give the brand and 28px button the card's full
+   inner width so the Harness badge is not clipped. */
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame]:not([data-sidebar-collapsed]) [data-dsh-sidebar-root] [class*='logoRow'] {
+  width: calc(100% + 24px);
+  margin-left: -12px;
+  margin-right: -12px;
+  gap: 6px;
+}
+
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame]:not([data-sidebar-collapsed]) [data-dsh-sidebar-root] [class*='logoRow'] [class*='brandIdentity'] {
+  transform: none;
+}
+
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame]:not([data-sidebar-collapsed]) [data-dsh-sidebar-root] [class*='logoRow'] [class*='toggle'] {
+  position: relative;
+  inset: auto;
+  flex: none;
+  align-self: center;
+  width: 28px;
+  height: 28px;
+  margin: 0;
 }
 
 [data-dsh-float][data-windows-titlebar] [data-dsh-frame]:not([data-sidebar-collapsed]) > [class*='sidebarCol']::before {
@@ -646,6 +675,152 @@ html[data-dsh-float][data-dsh-aqua-wallpaper][data-dsh-aqua-media='video'] body[
    remain visible and escape the zero-width column. */
 [data-dsh-float][data-platform='darwin'] [data-dsh-frame][data-sidebar-collapsed] [class*='sidebarCol'] {
   visibility: hidden;
+}
+
+/* Windows Mica collapse keeps a floating icon rail. The host still owns
+   its zero-width track and right-column sizing; reserve space only inside
+   the center column, without rewriting React's inline grid definition. */
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] {
+  --dsh-windows-sidebar-width: 96px !important;
+}
+
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] > [data-dsh-center] {
+  grid-column: 2;
+  grid-row: 1;
+  margin-left: 96px;
+}
+
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] > [data-rightbar-col] {
+  grid-column: 3;
+  grid-row: 1;
+}
+
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] > [class*='sidebarCol'] {
+  position: absolute;
+  top: calc(var(--dsh-frame-chrome-top, 0px) + 12px);
+  bottom: 12px;
+  left: 12px;
+  box-sizing: border-box;
+  width: 72px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid rgba(19, 45, 83, 0.26);
+  border-right-color: rgba(150, 190, 245, 0.65);
+  border-radius: 20px;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.5), 0 10px 34px rgba(19, 45, 83, 0.16);
+  transition: none;
+}
+
+[data-dsh-float][data-windows-titlebar] body[data-ds-dark-theme] [data-dsh-frame][data-sidebar-collapsed] > [class*='sidebarCol'] {
+  border-color: rgba(148, 180, 220, 0.32);
+  border-right-color: rgba(148, 180, 220, 0.2);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.07), 0 8px 30px rgba(2, 6, 14, 0.32);
+}
+
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] > [class*='sidebarCol']::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  pointer-events: none;
+  backdrop-filter: blur(var(--dsh-aqua-blur, 14px));
+}
+
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root] {
+  width: 100%;
+  padding: 16px 11px 12px;
+  align-items: center;
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root] [class*='logoRow'] {
+  width: 48px;
+  height: 48px;
+  margin: 0 0 16px;
+  justify-content: center;
+  overflow: visible;
+}
+
+/* Reuse the native toggle and commands, including their labels, shortcuts
+   and listeners. Only their collapsed presentation changes. */
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root] [class*='logoRow'] [class*='toggle'],
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root] [class*='newSession'] {
+  position: relative;
+  inset: auto;
+  flex: none;
+  align-self: center;
+  width: 48px;
+  height: 48px;
+  margin: 0;
+  border-radius: 16px;
+  color: var(--dsw-alias-label-primary);
+}
+
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root] [class*='logoRow'] [class*='toggle']::before {
+  content: '';
+  width: 30px;
+  height: 26px;
+  background: currentColor;
+  mask: url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2023.16%2017.04%22%3E%3Cpath%20d%3D%22M22.9168%201.43018C22.6713%201.31018%2022.5658%201.53918%2022.4223%201.65519C22.3733%201.69269%2022.3318%201.74169%2022.2903%201.78669C21.9317%202.1697%2021.5127%202.42121%2020.9657%202.39121C20.1657%202.34621%2019.4827%202.59771%2018.8787%203.20973C18.7502%202.45521%2018.3236%202.0047%2017.6746%201.71569C17.3351%201.56568%2016.9916%201.41518%2016.7536%201.08867C16.5876%200.856163%2016.5421%200.597155%2016.4591%200.341647C16.4061%200.187643%2016.3536%200.0301382%2016.1761%200.00363739C15.9836%20-0.0263635%2015.9081%200.135141%2015.8326%200.270145C15.5306%200.822162%2015.4136%201.43018%2015.4251%202.0462C15.4516%203.43174%2016.0366%204.53527%2017.1991%205.3203C17.3311%205.4103%2017.3651%205.5003%2017.3236%205.63181C17.2441%205.90231%2017.1501%206.16482%2017.0671%206.43533C17.0141%206.60784%2016.9351%206.64584%2016.7501%206.57033C16.1121%206.30383%2015.5611%205.90931%2015.074%205.4328C14.2475%204.63328%2013.5%203.75075%2012.568%203.05973C12.349%202.89822%2012.13%202.74822%2011.9034%202.60522C10.9524%201.68169%2012.028%200.923165%2012.277%200.833162C12.5375%200.739159%2012.3675%200.41615%2011.5259%200.42015C10.6844%200.42365%209.91439%200.705658%208.93286%201.08117C8.78935%201.13767%208.63835%201.17867%208.48384%201.21267C7.59332%201.04367%206.66829%201.00617%205.70226%201.11517C3.88321%201.31768%202.43016%202.1777%201.36213%203.64575C0.0790928%205.4103%20-0.222916%207.41536%200.146595%209.50642C0.535106%2011.7105%201.66014%2013.535%203.38869%2014.9616C5.18125%2016.4406%207.24581%2017.1657%209.60138%2017.0266C11.0319%2016.9441%2012.6245%2016.7526%2014.421%2015.2321C14.874%2015.4576%2015.3496%2015.5476%2016.1381%2015.6151C16.7456%2015.6716%2017.3306%2015.5851%2017.7836%2015.4911C18.4931%2015.3411%2018.4441%2014.6841%2018.1876%2014.5636C16.1081%2013.595%2016.5646%2013.9891%2016.1496%2013.67C17.2061%2012.42%2018.8202%2010.1979%2019.3182%207.17235C19.3672%206.83834%2019.4297%206.36783%2019.4222%206.09732C19.4182%205.93231%2019.4562%205.86831%2019.6447%205.84931C20.1657%205.78931%2020.6712%205.64681%2021.1357%205.3913C22.4833%204.65528%2023.0268%203.44624%2023.1548%201.9972C23.1738%201.77569%2023.1508%201.54668%2022.9168%201.43018ZM11.1749%2014.4736C9.15936%2012.889%208.18184%2012.3675%207.77832%2012.39C7.40081%2012.4125%207.46881%2012.8445%207.55182%2013.126C7.63882%2013.404%207.75182%2013.5955%207.91033%2013.8396C8.01983%2014.0011%208.09533%2014.2411%207.80083%2014.4216C7.15181%2014.8231%206.02327%2014.2866%205.97027%2014.2601C4.65673%2013.4865%203.5587%2012.4655%202.78467%2011.069C2.03715%209.72493%201.60314%208.28289%201.53164%206.74384C1.51264%206.37233%201.62214%206.24082%201.99215%206.17332C2.47916%206.08332%202.98118%206.06432%203.46769%206.13582C5.52476%206.43633%207.27581%207.35586%208.74385%208.8129C9.58188%209.64243%2010.2159%2010.634%2010.8689%2011.6025C11.5634%2012.631%2012.3105%2013.611%2013.262%2014.4146C13.598%2014.6961%2013.866%2014.9101%2014.1225%2015.0681C13.349%2015.1546%2012.058%2015.1731%2011.1749%2014.4746L11.1749%2014.4736ZM12.141%208.25988C12.141%208.09488%2012.273%207.96338%2012.439%207.96338C12.4765%207.96338%2012.5105%207.97088%2012.541%207.98188C12.5825%207.99688%2012.6205%208.01938%2012.6505%208.05338C12.7035%208.10588%2012.7335%208.18088%2012.7335%208.25988C12.7335%208.42489%2012.6015%208.55639%2012.4355%208.55639C12.2695%208.55639%2012.141%208.42489%2012.141%208.25988ZM15.1415%209.79893C14.949%209.87793%2014.7565%209.94544%2014.5715%209.95294C14.2845%209.96794%2013.9715%209.85143%2013.8015%209.70893C13.5375%209.48742%2013.3485%209.36342%2013.2695%208.97691C13.2355%208.8119%2013.2545%208.55639%2013.2845%208.40989C13.3525%208.09438%2013.277%207.89187%2013.0545%207.70787C12.8735%207.55786%2012.643%207.51636%2012.39%207.51636C12.2955%207.51636%2012.209%207.47486%2012.1445%207.44136C12.039%207.38886%2011.9519%207.25735%2012.035%207.09585C12.0615%207.04335%2012.19%206.91584%2012.22%206.89334C12.5635%206.69784%2012.9595%206.76184%2013.326%206.90834C13.6655%207.04735%2013.9225%207.30236%2014.292%207.66287C14.6695%208.09838%2014.7375%208.21838%2014.9525%208.54539C15.1225%208.8009%2015.277%209.06341%2015.3831%209.36392C15.4471%209.55142%2015.3641%209.70493%2015.1415%209.79893Z%22%2F%3E%3C%2Fsvg%3E') center / contain no-repeat;
+}
+
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root] [class*='logoRow'] [class*='toggle'] [class*='panelIcon'] {
+  display: none;
+}
+
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root] [class*='logoRow'] [class*='toggle']:hover::before {
+  display: none;
+}
+
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root] [class*='logoRow'] [class*='toggle']:hover [class*='panelIcon'] {
+  display: block;
+}
+
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root] [class*='newSession'] {
+  border: 1px solid var(--dsw-alias-border-l2);
+  background: var(--dsh-aqua-glass-card-light);
+  margin-bottom: 16px;
+}
+
+[data-dsh-float][data-windows-titlebar] body[data-ds-dark-theme] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root] [class*='newSession'] {
+  background: var(--dsh-aqua-glass-card-dark);
+}
+
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root] :is([class*='panelList'], [class*='regionArea'], [class*='footArea']) {
+  display: flex;
+  width: 48px;
+  margin: 0;
+  padding: 0;
+}
+
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root] [class*='panelList'] {
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root] :is([class*='panelRow'], [class*='regionArea'] button, [class*='footArea'] button) {
+  flex: none;
+  width: 48px;
+  height: 48px;
+  padding: 0;
+  justify-content: center;
+  border-radius: 14px;
+}
+
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root] [class*='sectionHeader'] {
+  height: 48px;
+  margin-bottom: 16px;
+}
+
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root] [class*='footArea'] :is([class*='settingsArea'], [class*='railRow'], [data-slot='settings.launcher'] > [class*='root']) {
+  width: 48px;
+}
+
+[data-dsh-float][data-windows-titlebar] [data-dsh-frame][data-sidebar-collapsed] [data-dsh-sidebar-root] svg {
+  width: 24px;
+  height: 24px;
 }
 
 /* A persistent home header carries window/navigation controls in DSH 0.2.
